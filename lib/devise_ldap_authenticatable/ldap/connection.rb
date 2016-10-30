@@ -19,7 +19,8 @@ module Devise
         @ldap.base = ldap_config["base"]
         @attribute = ldap_config["attribute"]
         @allow_unauthenticated_bind = ldap_config["allow_unauthenticated_bind"]
-
+		@default_group_unique_member_list_key = ldap_config["default_group_unique_member_list_key"]
+		
         @ldap_auth_username_builder = params[:ldap_auth_username_builder]
 
         @group_base = ldap_config["group_base"]
@@ -145,7 +146,7 @@ module Devise
         return true
       end
 
-      def in_group?(group_name, group_attribute = LDAP::DEFAULT_GROUP_UNIQUE_MEMBER_LIST_KEY)
+      def in_group?(group_name, group_attribute = (@default_group_unique_member_list_key || LDAP::DEFAULT_GROUP_UNIQUE_MEMBER_LIST_KEY))
         in_group = false
 
         if @check_group_membership_without_admin
