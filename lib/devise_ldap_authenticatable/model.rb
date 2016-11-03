@@ -107,7 +107,7 @@ module Devise
           end
 
           # add ldap groups here
-          resource.groups = resource.ldap_entry[:memberof].map { |m| m.split(',').map { |x| x if x[/cn=/]} }.flatten.compact.join(',')
+          resource.groups = resource.ldap_entry[:memberof].map { |m| m.split(',').map { |x| x if (x[/cn=/] || x[/CN=/]) } }.flatten.compact.join(',')
           resource.save!
 
           resource
