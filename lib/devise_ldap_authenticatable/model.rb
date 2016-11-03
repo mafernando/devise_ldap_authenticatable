@@ -104,8 +104,11 @@ module Devise
 
           if ::Devise.ldap_create_user && resource.new_record? && resource.valid_ldap_authentication?(attributes[:password])
             resource.ldap_before_save if resource.respond_to?(:ldap_before_save)
-            resource.save!
           end
+
+          # add ldap groups here
+          resource.groups = resource.ldap_entry[:memberof].map { |m| m.split(',').map { |x| x if x[/cn=/]} }.flatten.compact.join(',')
+          resource.save!
 
           resource
         end
