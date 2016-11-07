@@ -19,7 +19,7 @@ module Devise
         @ldap.base = ldap_config["base"]
         @attribute = ldap_config["attribute"]
         @allow_unauthenticated_bind = ldap_config["allow_unauthenticated_bind"]
-		@default_group_unique_member_list_key = ldap_config["default_group_unique_member_list_key"]
+        @default_group_unique_member_list_key = ldap_config["default_group_unique_member_list_key"]
 		
         @ldap_auth_username_builder = params[:ldap_auth_username_builder]
 
@@ -156,12 +156,22 @@ module Devise
         end
 
         unless ::Devise.ldap_ad_group_check
-          group_checking_ldap.search(:base => group_name, :scope => Net::LDAP::SearchScope_BaseObject) do |entry|
-            if entry[group_attribute].include? dn
-              in_group = true
-              DeviseLdapAuthenticatable::Logger.send("User #{dn} IS included in group: #{group_name}")
-            end
+          in_group = group_checking_ldap.search(base: @ldap.base, filter: Net::LDAP::Filter.eq(group_attribute, group_name)).map { |g|
+            g[:member].map{ |m| dn.upcase == m.upcase } }.flatten.include? true
+
+          if in_group
+            DeviseLdapAuthenticatable::Logger.send("User #{dn} IS included in group: #{group_name}")
+          else
+            DeviseLdapAuthenticatable::Logger.send("User #{dn} is NOT included in group: #{group_name}")
           end
+
+          # TODO: figure out how to handle fork deviation
+          # group_checking_ldap.search(:base => group_name, :scope => Net::LDAP::SearchScope_BaseObject) do |entry|
+          #   if entry[group_attribute].include? dn
+          #     in_group = true
+          #     DeviseLdapAuthenticatable::Logger.send("User #{dn} IS included in group: #{group_name}")
+          #   end
+          # end
         else
           # AD optimization - extension will recursively check sub-groups with one query
           # "(memberof:1.2.840.113556.1.4.1941:=group_name)"

@@ -106,8 +106,12 @@ module Devise
             resource.ldap_before_save if resource.respond_to?(:ldap_before_save)
           end
 
+
           # add ldap groups here
-          resource.groups = resource.ldap_entry[:memberof].map { |m| m.split(',').map { |x| x if (x[/cn=/] || x[/CN=/]) } }.flatten.compact.join(',')
+          groups = []
+          groups << ['dse'] if resource.in_ldap_group?('dse', 'cn')
+
+          resource.groups = groups.flatten.join(',')
           resource.save!
 
           resource
