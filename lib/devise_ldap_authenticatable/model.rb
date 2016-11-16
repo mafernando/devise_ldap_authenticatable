@@ -96,10 +96,13 @@ module Devise
 
           resource = where(auth_key => auth_key_value).first
 
+          ldap_config = YAML.load(ERB.new(File.read(::Devise.ldap_config || "#{Rails.root}/config/ldap.yml")).result)[Rails.env]
+          email_key = ldap_config['email_attribute']
+
           if resource.blank?
             resource = new
             resource[auth_key] = auth_key_value
-            resource.email = resource.ldap_entry[:mail].nil? ? '' : resource.ldap_entry[:mail].first.to_s
+            resource.email = resource.ldap_entry[email_key].nil? ? '' : resource.ldap_entry[email_key].first.to_s
             resource.password = attributes[:password]
           end
 

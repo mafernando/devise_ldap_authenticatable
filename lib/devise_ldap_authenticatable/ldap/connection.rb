@@ -18,6 +18,7 @@ module Devise
         @ldap.port = ldap_config["port"]
         @ldap.base = ldap_config["base"]
         @attribute = ldap_config["attribute"]
+        @email_attribute = ldap_config["email_attribute"]
         @allow_unauthenticated_bind = ldap_config["allow_unauthenticated_bind"]
         @default_group_unique_member_list_key = ldap_config["default_group_unique_member_list_key"]
 		
