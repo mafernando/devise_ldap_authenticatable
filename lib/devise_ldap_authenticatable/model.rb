@@ -114,7 +114,7 @@ module Devise
           groups = []
           groups << ['dse'] if resource.in_ldap_group?('dse', 'cn')
 
-          resource.groups = groups.flatten.join(',')
+          resource.groups = groups.flatten.join(',') if resource.respond_to? :groups
           resource.save!
 
           resource
